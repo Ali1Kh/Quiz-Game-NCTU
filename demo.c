@@ -114,6 +114,7 @@ struct Question questions[100] = {
 
 int main()
 {
+    
     const char *categories[] = {
         "General Knowledge",
         "Books",
