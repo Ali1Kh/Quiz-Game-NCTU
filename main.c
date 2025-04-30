@@ -1,0 +1,135 @@
+#include <stdio.h>
+
+struct Question
+{
+    char difficulty[10];
+    char category[50];
+    char question[256];
+    char correct_answer[100];
+    char incorrect_answers[3][100];
+};
+
+struct Question questions[100] = {
+    {.difficulty = "easy",
+     .category = "General Knowledge",
+     .question = "According to Sherlock Holmes, \"If you eliminate the impossible, whatever remains, however improbable, must be the...\"",
+     .correct_answer = "Truth",
+     .incorrect_answers = {"Answer", "Cause", "Source"}},
+    {.difficulty = "easy",
+     .category = "General Knowledge",
+     .question = "What does the F stand for in the FBI?",
+     .correct_answer = "Federal",
+     .incorrect_answers = {"Foreign", "Formal", "First"}},
+    {.difficulty = "easy",
+     .category = "General Knowledge",
+     .question = "What is the profession of Elon Musk's mom, Maye Musk?",
+     .correct_answer = "Model",
+     .incorrect_answers = {"Professor", "Biologist", "Musician"}},
+    {.difficulty = "easy",
+     .category = "General Knowledge",
+     .question = "Terry Gilliam was an animator that worked with which British comedy group?",
+     .correct_answer = "Monty Python",
+     .incorrect_answers = {"The Goodies", "The League of Gentlemen", "The Penny Dreadfuls"}},
+    {.difficulty = "easy",
+     .category = "General Knowledge",
+     .question = "Which of these Marvel games was released on the Playstation 2?",
+     .correct_answer = "Spider-Man 2",
+     .incorrect_answers = {"Silver Surfer", "Howard the Duck", "Wolverine: Adamantium Rage"}},
+
+    {.difficulty = "easy",
+     .category = "General Knowledge",
+     .question = "Which of these colours is NOT featured in the logo for Google?",
+     .correct_answer = "Pink",
+     .incorrect_answers = {"Yellow", "Blue", "Green"}},
+    {.difficulty = "easy",
+     .category = "General Knowledge",
+     .question = "Virgin Trains, Virgin Atlantic and Virgin Racing, are all companies owned by which famous entrepreneur?",
+     .correct_answer = "Richard Branson",
+     .incorrect_answers = {"Alan Sugar", "Donald Trump", "Bill Gates"}},
+    {
+        .difficulty = "easy",
+        .category = "General Knowledge",
+        .question = "What is the name of the Jewish New Year?",
+        .correct_answer = "Rosh Hashanah",
+        .incorrect_answers = {"Elul", "New Year", "Succoss"},
+
+    },
+
+    {.difficulty = "medium",
+     .category = "General Knowledge",
+     .question = "What is the unit of currency in Laos?",
+     .correct_answer = "Kip",
+     .incorrect_answers = {"Ruble", "Konra", "Dollar"}},
+
+    {.difficulty = "medium",
+     .category = "General Knowledge",
+     .question = "What was the original name of the search engine \"Google\"?",
+     .correct_answer = "BackRub",
+     .incorrect_answers = {"CatMassage", "SearchPro", "Netscape Navigator"}},
+    {.difficulty = "medium",
+     .category = "General Knowledge",
+     .question = "Which iconic Disneyland attraction was closed in 2017 to be remodeled as a \"Guardians of the Galaxy\" themed ride?",
+     .correct_answer = "Twilight Zone Tower of Terror",
+     .incorrect_answers = {"The Haunted Mansion", "Pirates of the Caribbean", "Peter Pan's Flight"}},
+    {.difficulty = "medium",
+     .category = "General Knowledge",
+     .question = "In which country was the 1992 Summer Olympics Games held?",
+     .correct_answer = "Spain",
+     .incorrect_answers = {"Russia", "Korea", "USA"}},
+    {.difficulty = "hard",
+     .category = "General Knowledge",
+     .question = "Disney's Haunted Mansion is home to a trio of Hitchhiking Ghosts. Which of these is NOT one of them?",
+     .correct_answer = "Harry",
+     .incorrect_answers = {"Gus", "Phineas", "Ezra"}},
+    {.difficulty = "hard",
+     .category = "General Knowledge",
+     .question = "Which of the following chemicals are found in eggplant seeds?",
+     .correct_answer = "Nicotine",
+     .incorrect_answers = {"Mescaline", "Cyanide", "Psilocybin"}},
+    {.difficulty = "hard",
+     .category = "General Knowledge",
+     .question = "What is the romanized Korean word for \"heart\"?",
+     .correct_answer = "Simjang",
+     .incorrect_answers = {"Aejeong", "Jeongsin", "Segseu"}},
+    {.difficulty = "hard",
+     .category = "General Knowledge",
+     .question = "De Eemhof, Port Zelande and Het Heijderbos are holiday villas owned by what company?",
+     .correct_answer = "Center Parcs",
+     .incorrect_answers = {"Yelloh Village", "Keycamp", "Villa Plus"}},
+    {.difficulty = "hard",
+     .category = "General Knowledge",
+     .question = "The words \"bungalow\" and \"shampoo\" originate from the languages of which country?",
+     .correct_answer = "India",
+     .incorrect_answers = {"Papua New Guinea", "Ethiopia", "China"}},
+    {.difficulty = "hard",
+     .category = "General Knowledge",
+     .question = "What type of dog is 'Handsome Dan', the mascot of Yale University?",
+     .correct_answer = "Bulldog",
+     .incorrect_answers = {"Yorkshire Terrier", "Boxer", "Pug"}},
+    {.difficulty = "hard",
+     .category = "General Knowledge",
+     .question = "What is the romanized Arabic word for \"moon\"?",
+     .correct_answer = "Qamar",
+     .incorrect_answers = {"Najma", "Kawkab", "Shams"}}};
+
+int main()
+{
+    const char *categories[] = {
+        "General Knowledge",
+        "Books",
+        "Film",
+        "Music",
+        "Television",
+        "Video Games",
+        "Science & Nature",
+        "Sports",
+        "History",
+        "Politics",
+        "Art",
+        "Animals",
+        "Vehicles",
+        "Comics",
+    };
+
+    return 0;
+}
