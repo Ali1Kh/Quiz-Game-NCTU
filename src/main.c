@@ -23,8 +23,23 @@ static void activate(GtkApplication *app, gpointer user_data)
     box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     gtk_window_set_child(GTK_WINDOW(window), box); // Use gtk_window_set_child instead of gtk_container_add
 
-    // Create a label and add it to the box
-    label = gtk_label_new("Welcome to the Quiz Game!");
+    // Create a label and set text
+    label = gtk_label_new("Welcome to the Quiz Game in NCTU!");
+
+    // Create a Pango font description to set the font size
+    PangoFontDescription *font_desc = pango_font_description_new();
+    pango_font_description_set_family(font_desc, "Arial");        // You can change the font family here
+    pango_font_description_set_size(font_desc, 20 * PANGO_SCALE); // 20 is the font size in points
+
+    // Create a PangoAttrList and apply the font
+    PangoAttrList *attr_list = pango_attr_list_new();
+    PangoAttribute *attr = pango_attr_font_desc_new(font_desc);
+    pango_attr_list_insert(attr_list, attr);
+
+    // Apply the attributes to the label
+    gtk_label_set_attributes(GTK_LABEL(label), attr_list);
+
+    // Add the label to the box
     gtk_box_append(GTK_BOX(box), label); // Use gtk_box_append instead of gtk_box_pack_start
 
     // Create a button and add it to the box
