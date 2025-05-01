@@ -1,0 +1,22 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Build GTK App",
+        "type": "shell",
+        "command": "gcc",
+        "args": [
+          "`pkg-config", "--cflags", "--libs", "gtk4`",
+          "-o", "myapp",
+          "index.c"
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": [],
+        "detail": "Compile GTK4 C app using pkg-config"
+      }
+    ]
+  }
+  
