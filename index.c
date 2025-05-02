@@ -159,8 +159,24 @@ void save_last_score(int score)
     fclose(file);
 }
 
+int read_last_score()
+{
+    FILE *file = fopen("last_score.txt", "r");
+    if (file == NULL)
+    {
+        return 0;
+    }
+    int score;
+    fscanf(file, "%d", &score);
+    printf("Welcome back! Your last score was: %d\n", score);
+    fclose(file);
+    return score;
+}
+
 int main()
 {
+    read_last_score();
+
     srand(time(NULL));
 
     const char *categories[] = {
@@ -205,25 +221,25 @@ int main()
         }
     } while (quantity > 10 || quantity < 1);
 
-    char Difficulty[20];
+    char difficulty[20];
     while (1)
     {
         printf("Enter the Difficulty (Easy, Medium, Hard): ");
-        scanf("%s", Difficulty);
+        scanf("%s", difficulty);
 
-        if (strcmp(Difficulty, "Easy") == 0 || strcmp(Difficulty, "easy") == 0)
+        if (strcmp(difficulty, "Easy") == 0 || strcmp(difficulty, "easy") == 0)
         {
-            strcpy(Difficulty, "easy");
+            strcpy(difficulty, "easy");
             break;
         }
-        else if (strcmp(Difficulty, "Medium") == 0 || strcmp(Difficulty, "medium") == 0)
+        else if (strcmp(difficulty, "Medium") == 0 || strcmp(difficulty, "medium") == 0)
         {
-            strcpy(Difficulty, "medium");
+            strcpy(difficulty, "medium");
             break;
         }
-        else if (strcmp(Difficulty, "Hard") == 0 || strcmp(Difficulty, "hard") == 0)
+        else if (strcmp(difficulty, "Hard") == 0 || strcmp(difficulty, "hard") == 0)
         {
-            strcpy(Difficulty, "hard");
+            strcpy(difficulty, "hard");
             break;
         }
         else
@@ -237,7 +253,7 @@ int main()
 
     for (int i = 0; i < 100; i++)
     {
-        if (strcmp(Difficulty, questions[i].difficulty) == 0 &&
+        if (strcmp(difficulty, questions[i].difficulty) == 0 &&
             strcmp(category, questions[i].category) == 0)
         {
             if (counter < quantity)
