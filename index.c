@@ -14,105 +14,55 @@ struct Question
     char incorrect_answers[3][100];
 };
 
-struct Question questions[100] = {
-    {.difficulty = "easy",
-     .category = "GeneralKnowledge",
-     .question = "According to Sherlock Holmes, \"If you eliminate the impossible, whatever remains, however improbable, must be the...\"",
-     .correct_answer = "Truth",
-     .incorrect_answers = {"Answer", "Cause", "Source"}},
-    {.difficulty = "easy",
-     .category = "GeneralKnowledge",
-     .question = "What does the F stand for in the FBI?",
-     .correct_answer = "Federal",
-     .incorrect_answers = {"Foreign", "Formal", "First"}},
-    {.difficulty = "easy",
-     .category = "GeneralKnowledge",
-     .question = "What is the profession of Elon Musk's mom, Maye Musk?",
-     .correct_answer = "Model",
-     .incorrect_answers = {"Professor", "Biologist", "Musician"}},
-    {.difficulty = "easy",
-     .category = "GeneralKnowledge",
-     .question = "Terry Gilliam was an animator that worked with which British comedy group?",
-     .correct_answer = "Monty Python",
-     .incorrect_answers = {"The Goodies", "The League of Gentlemen", "The Penny Dreadfuls"}},
-    {.difficulty = "easy",
-     .category = "GeneralKnowledge",
-     .question = "Which of these Marvel games was released on the Playstation 2?",
-     .correct_answer = "Spider-Man 2",
-     .incorrect_answers = {"Silver Surfer", "Howard the Duck", "Wolverine: Adamantium Rage"}},
-    {.difficulty = "easy",
-     .category = "GeneralKnowledge",
-     .question = "Which of these colours is NOT featured in the logo for Google?",
-     .correct_answer = "Pink",
-     .incorrect_answers = {"Yellow", "Blue", "Green"}},
-    {.difficulty = "easy",
-     .category = "GeneralKnowledge",
-     .question = "Virgin Trains, Virgin Atlantic and Virgin Racing, are all companies owned by which famous entrepreneur?",
-     .correct_answer = "Richard Branson",
-     .incorrect_answers = {"Alan Sugar", "Donald Trump", "Bill Gates"}},
-    {.difficulty = "easy",
-     .category = "GeneralKnowledge",
-     .question = "What is the name of the Jewish New Year?",
-     .correct_answer = "Rosh Hashanah",
-     .incorrect_answers = {"Elul", "New Year", "Succoss"}},
-    {.difficulty = "medium",
-     .category = "GeneralKnowledge",
-     .question = "What is the unit of currency in Laos?",
-     .correct_answer = "Kip",
-     .incorrect_answers = {"Ruble", "Konra", "Dollar"}},
-    {.difficulty = "medium",
-     .category = "GeneralKnowledge",
-     .question = "What was the original name of the search engine \"Google\"?",
-     .correct_answer = "BackRub",
-     .incorrect_answers = {"CatMassage", "SearchPro", "Netscape Navigator"}},
-    {.difficulty = "medium",
-     .category = "GeneralKnowledge",
-     .question = "Which iconic Disneyland attraction was closed in 2017 to be remodeled as a \"Guardians of the Galaxy\" themed ride?",
-     .correct_answer = "Twilight Zone Tower of Terror",
-     .incorrect_answers = {"The Haunted Mansion", "Pirates of the Caribbean", "Peter Pan's Flight"}},
-    {.difficulty = "medium",
-     .category = "GeneralKnowledge",
-     .question = "In which country was the 1992 Summer Olympics Games held?",
-     .correct_answer = "Spain",
-     .incorrect_answers = {"Russia", "Korea", "USA"}},
-    {.difficulty = "hard",
-     .category = "GeneralKnowledge",
-     .question = "Disney's Haunted Mansion is home to a trio of Hitchhiking Ghosts. Which of these is NOT one of them?",
-     .correct_answer = "Harry",
-     .incorrect_answers = {"Gus", "Phineas", "Ezra"}},
-    {.difficulty = "hard",
-     .category = "GeneralKnowledge",
-     .question = "Which of the following chemicals are found in eggplant seeds?",
-     .correct_answer = "Nicotine",
-     .incorrect_answers = {"Mescaline", "Cyanide", "Psilocybin"}},
-    {.difficulty = "hard",
-     .category = "GeneralKnowledge",
-     .question = "What is the romanized Korean word for \"heart\"?",
-     .correct_answer = "Simjang",
-     .incorrect_answers = {"Aejeong", "Jeongsin", "Segseu"}},
-    {.difficulty = "hard",
-     .category = "GeneralKnowledge",
-     .question = "De Eemhof, Port Zelande and Het Heijderbos are holiday villas owned by what company?",
-     .correct_answer = "Center Parcs",
-     .incorrect_answers = {"Yelloh Village", "Keycamp", "Villa Plus"}},
-    {.difficulty = "hard",
-     .category = "GeneralKnowledge",
-     .question = "The words \"bungalow\" and \"shampoo\" originate from the languages of which country?",
-     .correct_answer = "India",
-     .incorrect_answers = {"Papua New Guinea", "Ethiopia", "China"}},
-    {.difficulty = "hard",
-     .category = "GeneralKnowledge",
-     .question = "What type of dog is 'Handsome Dan', the mascot of Yale University?",
-     .correct_answer = "Bulldog",
-     .incorrect_answers = {"Yorkshire Terrier", "Boxer", "Pug"}},
-    {.difficulty = "hard",
-     .category = "GeneralKnowledge",
-     .question = "What is the romanized Arabic word for \"moon\"?",
-     .correct_answer = "Qamar",
-     .incorrect_answers = {"Najma", "Kawkab", "Shams"}}};
+struct Question questions[100];
+int question_count = 0;
+
+char categories[100][50];
+int categories_count = 0;
 
 int score = 0;
 
+void readQuestions()
+{
+    FILE *file = fopen("./data/questions.txt", "r");
+    if (file == NULL)
+    {
+        printf("Error reading questions!\n");
+        return;
+    }
+    char line[1024];
+    int i = 0;
+
+    while (fgets(line, sizeof(line), file))
+    {
+        sscanf(line, "difficulty : %[^,], category : %[^,], question : %[^&]& correct_answer : %[^$]$ incorrect_answers : [%[^,], %[^,], %[^]]]",
+               questions[i].difficulty, questions[i].category, questions[i].question, questions[i].correct_answer,
+               questions[i].incorrect_answers[0], questions[i].incorrect_answers[1], questions[i].incorrect_answers[2]);
+        i++;
+    }
+    question_count = i;
+
+    fclose(file);
+}
+void readCategories()
+{
+    FILE *file = fopen("./data/categories.txt", "r");
+    if (file == NULL)
+    {
+        printf("Error reading categories!\n");
+        return;
+    }
+    char line[1024];
+    int i = 0;
+    while (fgets(line, sizeof(line), file))
+    {
+        line[strlen(line) - 1] = '\0';
+        strcpy(categories[i], line);
+        i++;
+    }
+    categories_count = i;
+    fclose(file);
+}
 void changeScore(bool correct)
 {
     if (correct)
@@ -175,14 +125,9 @@ int read_last_score()
 
 int main()
 {
+    readCategories();
+    readQuestions();
     read_last_score();
-
-    srand(time(NULL));
-
-    const char *categories[] = {
-        "GeneralKnowledge", "Books", "Film", "Music", "Television",
-        "VideoGames", "Science&Nature", "Sports", "History",
-        "Politics", "Art", "Animals", "Vehicles", "Comics"};
 
     char category[50];
     while (1)
@@ -191,9 +136,9 @@ int main()
         scanf("%s", category);
 
         int isValid = 0;
-        for (int i = 0; i < 14; i++)
+        for (int i = 0; i < categories_count; i++)
         {
-            if (strcmp(category, categories[i]) == 0)
+            if (strcasecmp(category, categories[i]) == 0)
             {
                 isValid = 1;
                 break;
@@ -202,7 +147,7 @@ int main()
 
         if (!isValid)
         {
-            printf("Invalid choice. Try again.\n");
+            printf("Invalid category. Try again.\n");
         }
         else
         {
@@ -253,8 +198,8 @@ int main()
 
     for (int i = 0; i < 100; i++)
     {
-        if (strcmp(difficulty, questions[i].difficulty) == 0 &&
-            strcmp(category, questions[i].category) == 0)
+        if (strcasecmp(difficulty, questions[i].difficulty) == 0 &&
+            strcasecmp(category, questions[i].category) == 0)
         {
             if (counter < quantity)
             {
