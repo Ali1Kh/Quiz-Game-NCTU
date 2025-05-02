@@ -92,7 +92,7 @@ void allAnswers(struct Question q, char *choices[4])
     shuffleAnswers(choices, 4);
 }
 
-int check_answer(struct Question q, const char *user_answer)
+int checkAnswer(struct Question q, const char *user_answer)
 {
     return strcmp(q.correct_answer, user_answer) == 0;
 }
@@ -222,7 +222,7 @@ int main()
     }
 
     char *choices[4];
-    char user_answer[100];
+    char userAnswer[100];
 
     for (int i = 0; i < quantity; i++)
     {
@@ -243,8 +243,8 @@ int main()
         int index = answerChar - 'A';
         if (index >= 0 && index < 4)
         {
-            strcpy(user_answer, choices[index]);
-            if (check_answer(filteredQuestions[i], user_answer))
+            strcpy(userAnswer, choices[index]);
+            if (checkAnswer(filteredQuestions[i], userAnswer))
             {
                 printf("Correct!\n");
                 changeScore(true);
