@@ -109,7 +109,7 @@ void save_last_score(int score)
     fclose(file);
 }
 
-int read_last_score()
+int readLastScore()
 {
     FILE *file = fopen("last_score.txt", "r");
     if (file == NULL)
@@ -127,7 +127,7 @@ int main()
 {
     readCategories();
     readQuestions();
-    read_last_score();
+    readLastScore();
 
     char category[50];
     while (1)
