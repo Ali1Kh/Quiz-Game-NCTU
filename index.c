@@ -25,7 +25,7 @@ int categories_count = 0;
 
 int score = 0;
 
-// ! Read Questions from file {Ali}
+// ! Read Questions from file
 void readQuestions()
 {
     FILE *file = fopen("./data/questions.txt", "r");
@@ -49,7 +49,7 @@ void readQuestions()
     fclose(file);
 }
 
-// ! Read Categories from file {Ali}
+// ! Read Categories from file
 void readCategories()
 {
     FILE *file = fopen("./data/categories.txt", "r");
@@ -70,7 +70,7 @@ void readCategories()
     fclose(file);
 }
 
-// ! Change Score if answer is correct {Mariam}
+// ! Change Score if answer is correct
 void changeScore(bool correct)
 {
     if (correct)
@@ -79,7 +79,7 @@ void changeScore(bool correct)
     }
 }
 
-// ! Shuffle answers array with random numbers {Abdelaziz}
+// ! Shuffle answers array with random numbers
 void shuffleAnswers(char *answers[], int size)
 {
     for (int i = size - 1; i > 0; i--)
@@ -91,7 +91,7 @@ void shuffleAnswers(char *answers[], int size)
     }
 }
 
-// ! Get all answers for a question {Abdelaziz}
+// ! Get all answers for a question
 void allAnswers(struct Question q, char *choices[4])
 {
     choices[0] = q.correct_answer;
@@ -102,13 +102,13 @@ void allAnswers(struct Question q, char *choices[4])
     shuffleAnswers(choices, 4);
 }
 
-// ! Check if answer is correct {Abdullah Ahmed}
+// ! Check if answer is correct
 int checkAnswer(struct Question q, const char *user_answer)
 {
     return strcmp(q.correct_answer, user_answer) == 0;
 }
 
-// ! Save last score to file {Abdullah Ahmed}
+// ! Save last score to file
 void saveLastScore(int score)
 {
     FILE *file = fopen("last_score.txt", "w");
@@ -121,7 +121,7 @@ void saveLastScore(int score)
     fclose(file);
 }
 
-// ! Read last score from file {Abdullah Taha}
+// ! Read last score from file
 int readLastScore()
 {
     FILE *file = fopen("last_score.txt", "r");
@@ -136,7 +136,7 @@ int readLastScore()
     return score;
 }
 
-// ! Start Timer {Ali}
+// ! Start Timer
 char startTimer()
 {
     int seconds = 10;
@@ -182,7 +182,7 @@ int main()
     readCategories();
     readQuestions();
     readLastScore();
-    // ! Choose category {Mona}
+    // ! Choose category
     char category[50];
     while (1)
     {
@@ -218,7 +218,7 @@ int main()
         }
     }
 
-    // ! Enter number of questions {Mona}
+    // ! Enter number of questions
     int quantity;
     do
     {
@@ -230,7 +230,7 @@ int main()
         }
     } while (quantity > 10 || quantity < 1);
 
-    // ! Filter questions by difficulty {Demiana}
+    // ! Filter questions by difficulty
     char difficulty[20];
     while (1)
     {
@@ -258,7 +258,7 @@ int main()
         }
     }
 
-    // !  Check the number of questions that match the category and difficulty {Demiana}
+    // !  Check the number of questions that match the category and difficulty
     struct Question filteredQuestions[10];
     int counter = 0;
 
@@ -275,6 +275,7 @@ int main()
         }
     }
 
+    // ! Check if there are enough questions
     if (counter == 0)
     {
         printf("No questions available for this category and difficulty.\n");
@@ -287,7 +288,7 @@ int main()
         quantity = counter;
     }
 
-    // ! Display questions and manage user answers {Mustafa}
+    // ! Display questions and manage user answers
     char *choices[4];
     char userAnswer[100];
 
