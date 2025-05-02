@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <time.h>
 #include "./utils/platform_utils.h"
+#include <unistd.h>
 
 struct Question
 {
@@ -129,15 +130,14 @@ char startTimer()
 {
     int seconds = 15;
     time_t start_time = time(NULL);
-    char input[55];
+    char input[55] = {0};
     bool input_received = false;
 
     printf("\n");
     while (seconds > 0 && !input_received)
     {
         time_t current_time = time(NULL);
-        int elapsed = (int)difftime(current_time, start_time);
-        int remaining = seconds - elapsed;
+        int remaining = seconds - (int)difftime(current_time, start_time);
 
         if (remaining >= 0)
         {
@@ -147,24 +147,23 @@ char startTimer()
         else
         {
             return '~';
-            break;
         }
 
-        if (HAS_INPUT())
+        if (_kbhit())
         {
+
             fgets(input, sizeof(input), stdin);
-            input_received = true;
-            return input[0];
+            if (input[0] != '\n')
+            {
+                input_received = true;
+                return input[0];
+            }
         }
 
-        SLEEP_MS(1000);
+        SLEEP_MS(100);
     }
-    printf("\n");
 
-    if (!input_received)
-    {
-        printf("\rTime's up! No input received.\n");
-    }
+    return '~';
 }
 
 int main()

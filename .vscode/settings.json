@@ -3,6 +3,7 @@
         "COMMIT_EDITMSG": "bat",
         "system_error": "c",
         "cstdlib": "c",
-        "platform_utils.h": "c"
+        "platform_utils.h": "c",
+        "stdbool.h": "c"
     }
 }
