@@ -2,6 +2,7 @@
     "files.associations": {
         "COMMIT_EDITMSG": "bat",
         "system_error": "c",
-        "cstdlib": "c"
+        "cstdlib": "c",
+        "platform_utils.h": "c"
     }
 }

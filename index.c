@@ -4,6 +4,8 @@
 #include <time.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <time.h>
+#include "./utils/platform_utils.h"
 
 struct Question
 {
@@ -123,6 +125,48 @@ int readLastScore()
     return score;
 }
 
+char startTimer()
+{
+    int seconds = 8;
+    time_t start_time = time(NULL);
+    char input[55];
+    bool input_received = false;
+
+    printf("\n");
+    while (seconds > 0 && !input_received)
+    {
+        time_t current_time = time(NULL);
+        int elapsed = (int)difftime(current_time, start_time);
+        int remaining = seconds - elapsed;
+
+        if (remaining >= 0)
+        {
+            printf("\rEnter Your answer (A, B, C, D) (%d): ", remaining);
+            fflush(stdout);
+        }
+        else
+        {
+            return '~';
+            break;
+        }
+
+        if (HAS_INPUT())
+        {
+            fgets(input, sizeof(input), stdin);
+            input_received = true;
+            return input[0];
+        }
+
+        SLEEP_MS(1000);
+    }
+    printf("\n");
+
+    if (!input_received)
+    {
+        printf("\rTime's up! No input received.\n");
+    }
+}
+
 int main()
 {
     readCategories();
@@ -132,7 +176,16 @@ int main()
     char category[50];
     while (1)
     {
-        printf("Enter a question category: ");
+        printf("Choose a category (");
+        for (int i = 0; i < categories_count; i++)
+        {
+            printf("%s", categories[i]);
+            if (i < categories_count - 1)
+            {
+                printf(", ");
+            }
+        }
+        printf("): ");
         scanf("%s", category);
 
         int isValid = 0;
@@ -234,9 +287,7 @@ int main()
             printf("%c. %s\n", 'A' + j, choices[j]);
         }
 
-        char answerChar;
-        printf("Your answer (A, B, C, D): ");
-        scanf(" %c", &answerChar);
+        char answerChar = startTimer();
 
         answerChar = toupper(answerChar);
 
@@ -257,7 +308,14 @@ int main()
         }
         else
         {
-            printf("Invalid input. Question skipped.\n");
+            if (answerChar == '~')
+            {
+                printf("\rTime's up!                 ");
+            }
+            else
+            {
+                printf("Invalid input. Question skipped.\n");
+            }
             changeScore(false);
         }
     }
