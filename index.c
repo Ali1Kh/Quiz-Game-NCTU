@@ -100,7 +100,7 @@ int checkAnswer(struct Question q, const char *user_answer)
     return strcmp(q.correct_answer, user_answer) == 0;
 }
 
-void save_last_score(int score)
+void saveLastScore(int score)
 {
     FILE *file = fopen("last_score.txt", "w");
     if (file == NULL)
@@ -128,7 +128,7 @@ int readLastScore()
 
 char startTimer()
 {
-    int seconds = 15;
+    int seconds = 10;
     time_t start_time = time(NULL);
     char input[55] = {0};
     bool input_received = false;
@@ -151,7 +151,6 @@ char startTimer()
 
         if (_kbhit())
         {
-
             fgets(input, sizeof(input), stdin);
             if (input[0] != '\n')
             {
@@ -296,12 +295,12 @@ int main()
             strcpy(userAnswer, choices[index]);
             if (checkAnswer(filteredQuestions[i], userAnswer))
             {
-                printf("Correct!\n");
+                printf("✅ Correct!\n");
                 changeScore(true);
             }
             else
             {
-                printf("Wrong! Correct answer is: %s\n", filteredQuestions[i].correct_answer);
+                printf("❌ Wrong! Correct answer is: %s\n", filteredQuestions[i].correct_answer);
                 changeScore(false);
             }
         }
@@ -309,18 +308,19 @@ int main()
         {
             if (answerChar == '~')
             {
-                printf("\rTime's up!                 ");
+                printf("\r🛑 Time's up!                                    ");
+                printf("\n");
             }
             else
             {
-                printf("Invalid input. Question skipped.\n");
+                printf("🚫 Invalid input. Question skipped.\n");
             }
             changeScore(false);
         }
     }
 
-    printf("\nYour final score is: %d out of %d\n", score, quantity);
-    save_last_score(score);
+    printf("\n✨ Your final score is: %d out of %d\n", score, quantity);
+    saveLastScore(score);
 
     return 0;
 }
