@@ -127,9 +127,9 @@ int readLastScore()
 
 char startTimer()
 {
-    int seconds = 8;
+    int seconds = 15;
     time_t start_time = time(NULL);
-    char input[55];
+    char input[55] = {0};
     bool input_received = false;
 
     printf("\n");
@@ -147,14 +147,27 @@ char startTimer()
         else
         {
             return '~';
-            break;
         }
 
         if (HAS_INPUT())
         {
-            fgets(input, sizeof(input), stdin);
-            input_received = true;
-            return input[0];
+            if (fgets(input, sizeof(input), stdin) != NULL)
+            {
+                input[strcspn(input, "\n")] = '\0';
+
+                if (strlen(input) == 1 &&
+                    (towupper(input[0]) == 'A' || towupper(input[0]) == 'B' ||
+                     towupper(input[0]) == 'C' || towupper(input[0]) == 'D'))
+                {
+                    return input[0];
+                }
+                else
+                {
+                    printf("\nInvalid input! Please enter A, B, C, or D.\n");
+                    input_received = false;
+                    clear_input_buffer();
+                }
+            }
         }
 
         SLEEP_MS(1000);
@@ -310,7 +323,7 @@ int main()
         {
             if (answerChar == '~')
             {
-                printf("\rTime's up!                 ");
+                printf("\rTime's up!                             ");
             }
             else
             {

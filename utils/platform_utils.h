@@ -38,4 +38,16 @@ bool platform_has_input()
 }
 #endif
 
+void clear_input_buffer()
+{
+#ifdef _WIN32
+    while (_kbhit())
+        _getch();
+#else
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
+#endif
+}
+
 #endif // PLATFORM_UTILS_H
