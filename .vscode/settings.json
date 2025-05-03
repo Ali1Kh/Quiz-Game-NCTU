@@ -4,6 +4,8 @@
         "system_error": "c",
         "cstdlib": "c",
         "platform_utils.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "start_page.h": "c",
+        "quiz_page.h": "c"
     }
 }
