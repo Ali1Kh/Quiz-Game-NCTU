@@ -230,7 +230,7 @@ int main()
         }
     } while (quantity > 10 || quantity < 1);
 
-    // ! Filter questions by difficulty
+    // ! Enter difficulty
     char difficulty[20];
     while (1)
     {
@@ -258,7 +258,7 @@ int main()
         }
     }
 
-    // !  Check the number of questions that match the category and difficulty
+    // !  Filter questions that match the category and difficulty
     struct Question filteredQuestions[10];
     int counter = 0;
 
