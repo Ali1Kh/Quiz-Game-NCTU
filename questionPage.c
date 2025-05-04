@@ -30,12 +30,20 @@ int remaining_time = 10;
 void update_question_display(void);
 void on_answer_clicked(GtkButton *button, gpointer user_data);
 
+// ! Shuffle answers array with random numbers
+void shuffleAnswers(char *answers[], int size){
+    for (int i = size - 1; i > 0; i--){
+        int j = rand() % (i + 1);
+        char *temp = answers[i];
+        answers[i] = answers[j];
+        answers[j] = temp;
+    }
+}
+
 // ! Save last score to file
-void saveLastScore(int score)
-{
+void saveLastScore(int score){
     FILE *file = fopen("last_score.txt", "w");
-    if (file == NULL)
-    {
+    if (file == NULL){
         printf("Error saving score!\n");
         return;
     }
@@ -43,11 +51,9 @@ void saveLastScore(int score)
     fclose(file);
 }
 
-void readQuestions()
-{
+void readQuestions(){
     FILE *file = fopen("./data/questions.txt", "r");
-    if (file == NULL)
-    {
+    if (file == NULL){
         printf("Error reading questions!\n");
         return;
     }
@@ -150,7 +156,8 @@ void update_question_display() {
     answers[2] = q.incorrect_answers[1];
     answers[3] = q.incorrect_answers[2];
 
-    shuffle_answers(answers, 4);
+    // Shuffle answers before displaying
+    shuffleAnswers(answers, 4);
 
     for (int i = 0; i < 4; i++) {
         GtkWidget *button = gtk_button_new_with_label(answers[i]);
@@ -164,6 +171,7 @@ void update_question_display() {
 
     gtk_widget_set_visible(grid, TRUE);
 }
+
 
 void on_answer_clicked(GtkButton *button, gpointer user_data) {
     if (timer_id != 0) {
