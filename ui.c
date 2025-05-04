@@ -97,6 +97,30 @@ void show_error_window(GtkWindow *parent, const char *message) {
     gtk_window_present(GTK_WINDOW(error_window));
 }
 
+// Save last score to file
+void saveLastScore(int score) {
+    FILE *file = fopen("last_score.txt", "w");
+    if (file == NULL) {
+        printf("Error saving score!\n");
+        return;
+    }
+    fprintf(file, "%d\n", score);
+    fclose(file);
+}
+
+// Read last score from file
+int readLastScore() {
+    FILE *file = fopen("last_score.txt", "r");
+    if (file == NULL) {
+        return 0;
+    }
+    int score;
+    fscanf(file, "%d", &score);
+    printf("Welcome back! Your last score was: %d\n", score);
+    fclose(file);
+    return score;
+}
+
 static void on_start_clicked(GtkButton *button, gpointer user_data) {
     GtkEntry *entry = GTK_ENTRY(g_object_get_data(G_OBJECT(button), "entry"));
     GtkDropDown *category_dropdown = GTK_DROP_DOWN(g_object_get_data(G_OBJECT(button), "category_dropdown"));
@@ -140,6 +164,7 @@ static void on_start_clicked(GtkButton *button, gpointer user_data) {
 
     if (filter_questions(category, difficulty, quantity)) {
         g_print("Found %d questions!\n", quantity);
+        // saveLastScore(quantity); // You can save score here when quiz ends
     } else {
         g_print("No questions found for this category and difficulty.\n");
     }
@@ -200,7 +225,8 @@ static void activate(GtkApplication *app, gpointer user_data) {
     start_button = gtk_button_new_with_label("Start");
     gtk_box_append(GTK_BOX(box), start_button);
 
-    int last_score = 0; 
+    // Display last score
+    int last_score = readLastScore();
     char score_text[50];
     snprintf(score_text, sizeof(score_text), "Last Score: %d", last_score);
     last_score_label = gtk_label_new(score_text);
