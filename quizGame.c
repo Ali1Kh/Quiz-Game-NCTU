@@ -17,6 +17,7 @@ typedef struct {
     char incorrect_answers[3][128];
 } Question;
 
+// Global variables
 char categories[MAX_CATEGORIES][MAX_CATEGORY_LENGTH];
 int categories_count = 0;
 
@@ -29,6 +30,9 @@ int filtered_count = 0;
 int current_question_index = 0;
 int score = 0;
 
+// Global application state
+GtkApplication *global_app = NULL;
+GtkWidget *question_window = NULL;
 GtkWidget *score_label;
 GtkWidget *question_label;
 GtkWidget *info_label;
@@ -42,12 +46,14 @@ int remaining_time = 10;
 void readCategories();
 void readQuestions();
 gboolean filter_questions(const char *category, const char *difficulty, int quantity);
-void show_question_page(GtkApplication *app);
+void show_question_page();
+void show_start_page();
 void update_question_display();
 void shuffleAnswers(char *answers[], int size);
 void saveLastScore(int score);
 int readLastScore();
 void show_error_window(GtkWindow *parent, const char *message);
+gboolean update_timer(gpointer user_data);
 
 // Shuffle answers array with random numbers
 void shuffleAnswers(char *answers[], int size) {
@@ -169,6 +175,65 @@ void show_error_window(GtkWindow *parent, const char *message) {
     gtk_window_present(GTK_WINDOW(error_window));
 }
 
+// Handler for Back to Start button click
+void on_back_to_start_clicked(GtkButton *button, gpointer user_data) {
+    // Close the results dialog
+    GtkRoot *root = gtk_widget_get_root(GTK_WIDGET(button));
+    gtk_window_destroy(GTK_WINDOW(root));
+    
+    // Also close the question window if it exists
+    if (question_window != NULL) {
+        gtk_window_destroy(GTK_WINDOW(question_window));
+        question_window = NULL;
+    }
+    
+    // Show the start page again
+    show_start_page();
+}
+
+// Show a dialog with the quiz result and options
+void show_result_dialog() {
+    // Save score before displaying the result
+    saveLastScore(score);
+
+    char result[64];
+    snprintf(result, sizeof(result), "Quiz finished! Your score: %d/%d", score, filtered_count);
+    
+    GtkWidget *dialog = gtk_window_new();
+    gtk_window_set_title(GTK_WINDOW(dialog), "Result");
+    gtk_window_set_default_size(GTK_WINDOW(dialog), 300, 150);
+    
+    // Set transient for the question window if available
+    if (question_window != NULL) {
+        gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(question_window));
+        gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
+    }
+
+    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_widget_set_margin_top(vbox, 20);
+    gtk_widget_set_margin_bottom(vbox, 20);
+    gtk_widget_set_margin_start(vbox, 20);
+    gtk_widget_set_margin_end(vbox, 20);
+    gtk_window_set_child(GTK_WINDOW(dialog), vbox);
+
+    GtkWidget *label = gtk_label_new(result);
+    gtk_box_append(GTK_BOX(vbox), label);
+
+    // Add "Back to Start" button
+    GtkWidget *back_btn = gtk_button_new_with_label("Back to Start");
+    g_signal_connect(back_btn, "clicked", G_CALLBACK(on_back_to_start_clicked), NULL);
+    gtk_widget_set_margin_top(back_btn, 10);
+    gtk_box_append(GTK_BOX(vbox), back_btn);
+
+    // Add Close button
+    GtkWidget *btn = gtk_button_new_with_label("Close");
+    g_signal_connect_swapped(btn, "clicked", G_CALLBACK(gtk_window_destroy), dialog);
+    gtk_widget_set_margin_top(btn, 5);
+    gtk_box_append(GTK_BOX(vbox), btn);
+
+    gtk_window_present(GTK_WINDOW(dialog));
+}
+
 gboolean update_timer(gpointer user_data) {
     char timer_text[32];
     if (remaining_time > 0) {
@@ -180,26 +245,7 @@ gboolean update_timer(gpointer user_data) {
         gtk_label_set_text(GTK_LABEL(timer_label), "Time's up!");
         current_question_index++;
         if (current_question_index >= filtered_count) {
-            // Save score before displaying the result
-            saveLastScore(score);
-
-            char result[64];
-            snprintf(result, sizeof(result), "Quiz finished! Your score: %d/%d", score, filtered_count);
-            GtkWidget *dialog = gtk_window_new();
-            gtk_window_set_title(GTK_WINDOW(dialog), "Result");
-            gtk_window_set_default_size(GTK_WINDOW(dialog), 300, 100);
-
-            GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
-            gtk_window_set_child(GTK_WINDOW(dialog), vbox);
-
-            GtkWidget *label = gtk_label_new(result);
-            gtk_box_append(GTK_BOX(vbox), label);
-
-            GtkWidget *btn = gtk_button_new_with_label("Close");
-            g_signal_connect_swapped(btn, "clicked", G_CALLBACK(gtk_window_destroy), dialog);
-            gtk_box_append(GTK_BOX(vbox), btn);
-
-            gtk_window_present(GTK_WINDOW(dialog));
+            show_result_dialog();
         } else {
             update_question_display();
         }
@@ -227,27 +273,7 @@ void on_answer_clicked(GtkButton *button, gpointer user_data) {
 
     current_question_index++;
     if (current_question_index >= filtered_count) {
-        // Save score before displaying the result
-        saveLastScore(score);
-
-        char result[64];
-        snprintf(result, sizeof(result), "Quiz finished! Your score: %d/%d", score, filtered_count);
-
-        GtkWidget *dialog = gtk_window_new();
-        gtk_window_set_title(GTK_WINDOW(dialog), "Result");
-        gtk_window_set_default_size(GTK_WINDOW(dialog), 300, 100);
-
-        GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
-        gtk_window_set_child(GTK_WINDOW(dialog), vbox);
-
-        GtkWidget *label = gtk_label_new(result);
-        gtk_box_append(GTK_BOX(vbox), label);
-
-        GtkWidget *btn = gtk_button_new_with_label("Close");
-        g_signal_connect_swapped(btn, "clicked", G_CALLBACK(gtk_window_destroy), dialog);
-        gtk_box_append(GTK_BOX(vbox), btn);
-
-        gtk_window_present(GTK_WINDOW(dialog));
+        show_result_dialog();
     } else {
         update_question_display();
     }
@@ -295,17 +321,17 @@ void update_question_display() {
     gtk_widget_set_visible(grid, TRUE);
 }
 
-void show_question_page(GtkApplication *app) {
-    GtkWidget *window = gtk_application_window_new(app);
-    gtk_window_set_title(GTK_WINDOW(window), "Quiz Game");
-    gtk_window_set_default_size(GTK_WINDOW(window), 600, 400);
+void show_question_page() {
+    question_window = gtk_application_window_new(global_app);
+    gtk_window_set_title(GTK_WINDOW(question_window), "Quiz Game");
+    gtk_window_set_default_size(GTK_WINDOW(question_window), 600, 400);
 
     GtkWidget *main_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 15);
     gtk_widget_set_margin_top(main_box, 20);
     gtk_widget_set_margin_bottom(main_box, 20);
     gtk_widget_set_margin_start(main_box, 20);
     gtk_widget_set_margin_end(main_box, 20);
-    gtk_window_set_child(GTK_WINDOW(window), main_box);
+    gtk_window_set_child(GTK_WINDOW(question_window), main_box);
 
     info_label = gtk_label_new("");
     gtk_label_set_use_markup(GTK_LABEL(info_label), TRUE);
@@ -333,11 +359,10 @@ void show_question_page(GtkApplication *app) {
     gtk_box_append(GTK_BOX(main_box), score_label);
 
     update_question_display();
-    gtk_window_present(GTK_WINDOW(window));
+    gtk_window_present(GTK_WINDOW(question_window));
 }
 
 static void on_start_clicked(GtkButton *button, gpointer user_data) {
-    GtkApplication *app = GTK_APPLICATION(user_data);
     GtkEntry *entry = GTK_ENTRY(g_object_get_data(G_OBJECT(button), "entry"));
     GtkDropDown *category_dropdown = GTK_DROP_DOWN(g_object_get_data(G_OBJECT(button), "category_dropdown"));
     GtkDropDown *difficulty_dropdown = GTK_DROP_DOWN(g_object_get_data(G_OBJECT(button), "difficulty_dropdown"));
@@ -387,13 +412,13 @@ static void on_start_clicked(GtkButton *button, gpointer user_data) {
         gtk_window_destroy(window);
         
         // Show the question page
-        show_question_page(app);
+        show_question_page();
     } else {
         show_error_window(window, "No questions found for this category and difficulty.\nPlease try different options.");
     }
 }
 
-static void show_start_page(GtkApplication *app) {
+void show_start_page() {
     GtkWidget *window;
     GtkWidget *box;
     GtkWidget *title;
@@ -403,7 +428,7 @@ static void show_start_page(GtkApplication *app) {
     GtkWidget *start_button;
     GtkWidget *last_score_label;
 
-    window = gtk_application_window_new(app);
+    window = gtk_application_window_new(global_app);
     gtk_window_set_title(GTK_WINDOW(window), "Quiz App");
     gtk_window_set_default_size(GTK_WINDOW(window), 600, 400);
     gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
@@ -466,18 +491,21 @@ static void show_start_page(GtkApplication *app) {
     g_object_set_data(G_OBJECT(start_button), "difficulty_dropdown", difficulty_dropdown);
 
     // Connect the signal to the callback function
-    g_signal_connect(start_button, "clicked", G_CALLBACK(on_start_clicked), app);
+    g_signal_connect(start_button, "clicked", G_CALLBACK(on_start_clicked), NULL);
 
     gtk_window_present(GTK_WINDOW(window));
 }
 
 static void activate(GtkApplication *app, gpointer user_data) {
+    // Store the application reference globally
+    global_app = app;
+    
     // Load categories and questions
     readCategories();
     readQuestions();
     
     // Show the start page
-    show_start_page(app);
+    show_start_page();
 }
 
 int main(int argc, char *argv[]) {
