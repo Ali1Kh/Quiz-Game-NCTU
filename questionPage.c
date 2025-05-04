@@ -3,61 +3,19 @@
 #include <string.h>
 #include <time.h>
 
+#define MAX_QUESTIONS 100
+
 typedef struct {
-    char *question;
-    char *answers[4];
-    int correct_index;
-    char *category;
+    char difficulty[32];
+    char category[64];
+    char question[512];
+    char correct_answer[128];
+    char incorrect_answers[3][128];
 } Question;
 
-
-Question questions[] = {
-    {
-        .question = "In the server hosting industry IaaS stands for...",
-        .answers = {"Infrastructure as a Service", "Internet as a Service", "Internet and a Server", "Infrastructure as a Server"},
-        .correct_index = 0,
-        .category = "Computers"
-    },
-    {
-        .question = "The computer OEM manufacturer Clevo, known for its Sager notebook line, is based in which country?",
-        .answers = {"Taiwan", "United States", "Germany", "China (People's Republic of)"},
-        .correct_index = 0,
-        .category = "Computers"
-    },
-    {
-        .question = "On which computer hardware device is the BIOS chip located?",
-        .answers = {"Motherboard", "Hard Disk Drive", "Central Processing Unit", "Graphics Processing Unit"},
-        .correct_index = 0,
-        .category = "Computers"
-    },
-    {
-        .question = "Which of these is the name for the failed key escrow device introduced by the National Security Agency in 1993?",
-        .answers = {"Clipper Chip", "Enigma Machine", "Skipjack", "Nautilus"},
-        .correct_index = 0,
-        .category = "Computers"
-    },
-    {
-        .question = "What does the acronym CDN stand for in terms of networking?",
-        .answers = {"Content Delivery Network", "Content Distribution Network", "Computational Data Network", "Compressed Data Network"},
-        .correct_index = 0,
-        .category = "Computers"
-    },
-    {
-        .question = "How many bits make up the significand portion of a single precision floating point number?",
-        .answers = {"23", "8", "53", "15"},
-        .correct_index = 0,
-        .category = "Computers"
-    },
-    {
-        .question = "How many bytes are in a single Kibibyte?",
-        .answers = {"1024", "2400", "1000", "1240"},
-        .correct_index = 0,
-        .category = "Computers"
-    }
-};
-
+Question questions[MAX_QUESTIONS];
+int question_count = 0;
 int current_question_index = 0;
-int total_questions = sizeof(questions) / sizeof(questions[0]);
 int score = 0;
 
 GtkWidget *score_label;
@@ -69,8 +27,50 @@ GtkWidget *timer_label;
 guint timer_id;
 int remaining_time = 10;
 
+void update_question_display(void);
 void on_answer_clicked(GtkButton *button, gpointer user_data);
-void update_question_display();
+
+// ! Save last score to file
+void saveLastScore(int score)
+{
+    FILE *file = fopen("last_score.txt", "w");
+    if (file == NULL)
+    {
+        printf("Error saving score!\n");
+        return;
+    }
+    fprintf(file, "%d\n", score);
+    fclose(file);
+}
+
+void readQuestions()
+{
+    FILE *file = fopen("./data/questions.txt", "r");
+    if (file == NULL)
+    {
+        printf("Error reading questions!\n");
+        return;
+    }
+
+    char line[1024];
+    int i = 0;
+
+    while (fgets(line, sizeof(line), file))
+    {
+        sscanf(line, "difficulty : %[^,], category : %[^,], question : %[^&]& correct_answer : %[^$]$ incorrect_answers : [%[^,], %[^,], %[^]]]",
+               questions[i].difficulty,
+               questions[i].category,
+               questions[i].question,
+               questions[i].correct_answer,
+               questions[i].incorrect_answers[0],
+               questions[i].incorrect_answers[1],
+               questions[i].incorrect_answers[2]);
+        i++;
+    }
+    question_count = i;
+
+    fclose(file);
+}
 
 gboolean update_timer(gpointer user_data) {
     char timer_text[32];
@@ -78,14 +78,16 @@ gboolean update_timer(gpointer user_data) {
         snprintf(timer_text, sizeof(timer_text), "Time left: %d seconds", remaining_time);
         gtk_label_set_text(GTK_LABEL(timer_label), timer_text);
         remaining_time--;
-        return TRUE; // keep repeating
+        return TRUE;
     } else {
-        // time expired, move to next question
         gtk_label_set_text(GTK_LABEL(timer_label), "Time's up!");
         current_question_index++;
-        if (current_question_index >= total_questions) {
+        if (current_question_index >= question_count) {
+            // Save score before displaying the result
+            saveLastScore(score);
+
             char result[64];
-            snprintf(result, sizeof(result), "Quiz finished! Your score: %d/%d", score, total_questions);
+            snprintf(result, sizeof(result), "Quiz finished! Your score: %d/%d", score, question_count);
             GtkWidget *dialog = gtk_window_new();
             gtk_window_set_title(GTK_WINDOW(dialog), "Result");
             gtk_window_set_default_size(GTK_WINDOW(dialog), 300, 100);
@@ -104,7 +106,7 @@ gboolean update_timer(gpointer user_data) {
         } else {
             update_question_display();
         }
-        return FALSE; // stop timer
+        return FALSE;
     }
 }
 
@@ -128,7 +130,7 @@ void shuffle_answers(char *answers[], int size) {
 
 void update_question_display() {
     if (timer_id != 0) {
-        g_source_remove(timer_id); // stop previous timer if running
+        g_source_remove(timer_id);
     }
     remaining_time = 10;
     timer_id = g_timeout_add_seconds(1, update_timer, NULL);
@@ -136,32 +138,31 @@ void update_question_display() {
     Question q = questions[current_question_index];
 
     char info_text[256];
-    snprintf(info_text, sizeof(info_text), "<b>Category type:</b> %s         %d Of %d Questions", q.category, current_question_index + 1, total_questions);
+    snprintf(info_text, sizeof(info_text), "<b>Category:</b> %s         %d of %d Questions", q.category, current_question_index + 1, question_count);
     gtk_label_set_markup(GTK_LABEL(info_label), info_text);
 
     gtk_label_set_text(GTK_LABEL(question_label), q.question);
-
     clear_grid_children(grid);
 
     char *answers[4];
-    for (int i = 0; i < 4; i++) {
-        answers[i] = q.answers[i];
-    }
+    answers[0] = q.correct_answer;
+    answers[1] = q.incorrect_answers[0];
+    answers[2] = q.incorrect_answers[1];
+    answers[3] = q.incorrect_answers[2];
+
     shuffle_answers(answers, 4);
 
     for (int i = 0; i < 4; i++) {
         GtkWidget *button = gtk_button_new_with_label(answers[i]);
         gtk_widget_set_size_request(button, 200, 40);
 
-        int is_correct = strcmp(answers[i], q.answers[q.correct_index]) == 0;
+        int is_correct = strcmp(answers[i], q.correct_answer) == 0;
         g_object_set_data(G_OBJECT(button), "answer_index", GINT_TO_POINTER(is_correct));
         g_signal_connect(button, "clicked", G_CALLBACK(on_answer_clicked), NULL);
         gtk_grid_attach(GTK_GRID(grid), button, i % 2, i / 2, 1, 1);
     }
 
     gtk_widget_set_visible(grid, TRUE);
-    gtk_widget_set_visible(grid, TRUE);
-
 }
 
 void on_answer_clicked(GtkButton *button, gpointer user_data) {
@@ -174,9 +175,12 @@ void on_answer_clicked(GtkButton *button, gpointer user_data) {
     if (selected_correct) score++;
 
     current_question_index++;
-    if (current_question_index >= total_questions) {
+    if (current_question_index >= question_count) {
+        // Save score before displaying the result
+        saveLastScore(score);
+
         char result[64];
-        snprintf(result, sizeof(result), "Quiz finished! Your score: %d/%d", score, total_questions);
+        snprintf(result, sizeof(result), "Quiz finished! Your score: %d/%d", score, question_count);
 
         GtkWidget *dialog = gtk_window_new();
         gtk_window_set_title(GTK_WINDOW(dialog), "Result");
@@ -244,6 +248,7 @@ void show_question_page(GtkApplication *app) {
 }
 
 static void activate(GtkApplication *app, gpointer user_data) {
+    readQuestions();
     show_question_page(app);
 }
 
@@ -252,8 +257,7 @@ int main(int argc, char *argv[]) {
     int status;
 
     srand(time(NULL));
-
-    app = gtk_application_new("com.quizapp.timer", G_APPLICATION_DEFAULT_FLAGS);
+    app = gtk_application_new("com.quizapp.file", G_APPLICATION_DEFAULT_FLAGS);
     g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
 
     status = g_application_run(G_APPLICATION(app), argc, argv);
