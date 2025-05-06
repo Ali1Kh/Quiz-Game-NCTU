@@ -262,7 +262,7 @@ int main()
     struct Question filteredQuestions[10];
     int counter = 0;
 
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < question_count; i++)
     {
         if (strcasecmp(difficulty, questions[i].difficulty) == 0 &&
             strcasecmp(category, questions[i].category) == 0)
